@@ -14,7 +14,7 @@ function [txsignal conf] = tx(txbits,conf,k)
 %
 
 % dummy 400Hz sinus generation
-time = 1:1/conf.f_s:4;
+%time = 1:1/conf.f_s:4;
 %txsignal = 0.3*sin(2*pi*400 * time.');
 
 
@@ -28,8 +28,6 @@ time = 1:1/conf.f_s:4;
 signal=[preamble_generate(conf.npreamble);txbits];
 
 
-
-
 %Mapping
 %BPSK FOR PREAMBLE
 BPSK=1;
@@ -41,17 +39,14 @@ signal(conf.npreamble+1:length(signal))= mapping(signal(conf.npreamble+1:length(
 
 %signal=[zeros(1,conf.os_factor);signal];
 
-%signal= upsample(signal,conf.os_factor);
+signal= upsample(signal,conf.os_factor);
 
 %Matched filter RRC
 MF_LENGTH=20;
 baseband_signal=matched_filter(signal, conf.os_factor, MF_LENGTH);
 
-size(baseband_signal);
 %Up conversion
 txsignal=up_conversion(baseband_signal,conf.f_c);
-size(txsignal);
-
 
 end
 
