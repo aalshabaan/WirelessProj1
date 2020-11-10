@@ -42,8 +42,8 @@ signal(conf.npreamble+1:length(signal))= mapping(signal(conf.npreamble+1:length(
 signal= upsample(signal,conf.os_factor);
 
 %Matched filter RRC
-MF_LENGTH=20;
-baseband_signal=matched_filter(signal, conf.os_factor, MF_LENGTH);
+conf.mf_length=20;
+baseband_signal=matched_filter(signal, conf.os_factor, conf.mf_length);
 
 %Up conversion
 txsignal=up_conversion(baseband_signal,conf.f_c);
