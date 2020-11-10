@@ -17,19 +17,21 @@ function [rxbits, conf] = rx(rxsignal,conf,k)
 % dummy 
 
 % Downconversion
-down_converted = rxsignal*e^(conf.f_c*2*pi*1i);
+down_converted = rxsignal*exp(conf.f_c*2*pi*1i);
 
 %Lowpass filtering:
 
 down_converted = lowpass(down_converted, conf);
 % Matched-filter
 rolloff = 0.22;
-pulse = rrc(conf.os_factor, rolloff, tx_filterlen);
+pulse = rrc(conf.os_factor, rolloff, 20);
 filtered_rx = conv(pulse,down_converted);
 
 % Frame sync
-preamble = preamble_generate(100);
-[data_idx, peak_phase] = frame_sync(preamble,conf.os_factor);
+preamble = preamble_generate(conf.npreamble);
+% Map preamble to BPSK
+preamble = 1 - 2*preamble;
+[data_idx, peak_phase] = frame_sync(filtered_rx,preamble,conf.os_factor);
 
 % Time and phase estimation and Interpolation
 
@@ -80,7 +82,7 @@ downsampled_data = data(1:conf.os_factor:end);
 L = length(downsampled_data);
 
 % Demapping
-BPSK_map = [-1 1];
+BPSK_map = [1 -1];
 QPSK_map =  1/sqrt(2) * [(-1-1j) (-1+1j) ( 1-1j) ( 1+1j)];
 
 switch conf.os_factor

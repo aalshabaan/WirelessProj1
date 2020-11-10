@@ -1,4 +1,4 @@
-function [beginning_of_data, phase_of_peak] = frame_sync(rx_signal, L)
+function [beginning_of_data, phase_of_peak] = frame_sync(rx_signal, preamble, L)
 
 % Frame synchronizer.
 % rx_signal is the noisy received signal, and L is the oversampling factor (L=1 in chapter 2, L=4 in all later chapters).
@@ -13,7 +13,7 @@ detection_threshold = 15;
 frame_sync_length = 100;
 
 % Calculate the frame synchronization sequence and map it to BPSK: 0 -> +1, 1 -> -1
-frame_sync_sequence = 1 - 2*lfsr_framesync(frame_sync_length);
+
 
 % When processing an oversampled signal (L>1), the following is important:
 % Do not simply return the index where T exceeds the threshold for the first time. Since the signal is oversampled, so will be the
@@ -25,7 +25,7 @@ samples_after_threshold = L;
 
 for i = L * frame_sync_length + 1 : length(rx_signal)
     r = rx_signal(i - L * frame_sync_length : L : i - L); % The part of the received signal that is currently inside the correlator.
-    c = frame_sync_sequence' * r;
+    c = preamble' * r;
     T = abs(c)^2 / abs(r' * r);
     
     if (T > detection_threshold || samples_after_threshold < L)
