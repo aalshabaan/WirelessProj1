@@ -68,7 +68,7 @@ QPSK=2;
     elseif(mapping_type==QPSK)
         
         GrayMap = 1/sqrt(2) * [(-1-1j) (-1+1j) ( 1-1j) ( 1+1j)];
-        out_signal = GrayMap(bi2de(input_signal)+1).' ;
+        out_signal = GrayMap(bi2de(input_signal)+1).' ; % This doesn't work cuz signal is a single column here
         
     else
         disp('Incorrect mapping type')
@@ -89,8 +89,9 @@ function filtered_signal = matched_filter(signal, os_factor, mf_length)
 end
 
 function passband_signal=up_conversion(baseband_signal, fc)
-
-    passband_signal= real(baseband_signal.*exp(i*2*pi*fc));
+    
+    t = 0:1/fc:((length(baseband_signal)- 1)/fc);
+    passband_signal= real(baseband_signal.*exp(1i*2*pi*fc*t'));
 
 end
 

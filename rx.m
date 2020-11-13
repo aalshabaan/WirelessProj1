@@ -17,7 +17,8 @@ function [rxbits, conf, raw_bits] = rx(rxsignal,conf,k)
 % dummy 
 
 % Downconversion
-down_converted = rxsignal*exp(-conf.f_c*2*pi*1i);
+t = 0:1/conf.f_c:((length(rxsignal)-1)/conf.f_c);
+down_converted = rxsignal.*exp(-conf.f_c*2*pi*1i*t');
 
 %Lowpass filtering:
 
