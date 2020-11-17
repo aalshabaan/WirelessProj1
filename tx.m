@@ -64,12 +64,13 @@ QPSK=2;
    
     elseif(mapping_type==QPSK)
         
+        reshape(input_signal, [], 2);
         GrayMap = 1/sqrt(2) * [(-1-1j) (-1+1j) ( 1-1j) ( 1+1j)];
-        temp_out_signal = GrayMap(bi2de(input_signal)+1).' ; % This doesn't work cuz signal is a single column here
+        out_signal = GrayMap(bi2de(input_signal)+1).' ; % This doesn't work cuz signal is a single column here
         
-        size_a=length(temp_out_signal)/2;
-        out_signal=reshape(temp_out_signal,[size_a,2]);
-        size(out_signal);
+%         size_a=length(temp_out_signal)/2;
+%         out_signal=reshape(temp_out_signal,[size_a,2]);
+%         size(out_signal);
         
     else
         disp('Incorrect mapping type')
