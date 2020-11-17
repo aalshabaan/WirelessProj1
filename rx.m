@@ -102,7 +102,7 @@ switch conf.modulation_order
         rxbits = de2bi(ind-1);
         % Unfold into a single column stream
         raw_bits = rxbits;
-        rxbits = rxbits(1:conf.nbits)';
+        rxbits = rxbits(1:conf.nbits);
     otherwise
         disp('WTF?')
         rxbits = zeros(conf.nbits,1);
