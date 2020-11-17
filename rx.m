@@ -38,7 +38,7 @@ disp(['FrameSyncIdx ', num2str(data_idx)])
 % Time and phase estimation and Interpolation
 
 data_length = floor(length(filtered_rx(data_idx:end))/conf.os_factor);
-disp(['nb_frames: ', num2str(data_length)])
+disp(['nb_symbs: ', num2str(data_length)])
 % data_length = conf.nbits;
 cum_err = 0;
 diff_err = zeros(1,data_length);
@@ -57,7 +57,7 @@ for i=1:data_length
     
      % Time error estimatuon
      pwr         = abs(segment).^2;
-     fourier_exponents = exp(2*pi*1i*(1:conf.os_factor)/conf.os_factor);
+     fourier_exponents = exp(2*pi*1i*(0:conf.os_factor-1)/conf.os_factor);
      diff_err(i) = fourier_exponents*pwr; % Calculate the power spectrum
      cum_err     = cum_err + diff_err(i);
      epsilon(i)  = -1/(2*pi)*angle(cum_err);
