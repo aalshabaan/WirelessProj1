@@ -22,18 +22,19 @@ function [txsignal conf] = tx(txbits,conf,k)
 
 
 %Preamble
-
-
-
-signal=[preamble_generate(conf.npreamble);txbits];
-
-
-%Mapping
-%BPSK FOR PREAMBLE
-BPSK=1;
-signal(1:conf.npreamble)= mapping(signal(1:conf.npreamble),BPSK);
-
-signal(conf.npreamble+1:length(signal))= mapping(signal(conf.npreamble+1:length(signal)),conf.modulation_order);
+BPSK = 1;
+preamble = mapping(preamble_generate(conf.npreamble), BPSK);
+mapped_signal = mapping(txbits,conf.modulation_order);
+signal = [preamble;mapped_signal];
+% signal=[preamble_generate(conf.npreamble);txbits];
+% 
+% 
+% %Mapping
+% %BPSK FOR PREAMBLE
+% 
+% signal(1:conf.npreamble)= mapping(signal(1:conf.npreamble),BPSK);
+% 
+% signal(conf.npreamble+1:length(signal))= mapping(signal(conf.npreamble+1:length(signal)),conf.modulation_order);
 
 %Upsampling
 
@@ -41,12 +42,13 @@ signal(conf.npreamble+1:length(signal))= mapping(signal(conf.npreamble+1:length(
 
 signal= upsample(signal,conf.os_factor);
 
+
 %Matched filter RRC
 conf.mf_length=20;
 baseband_signal=matched_filter(signal, conf.os_factor, conf.mf_length);
 
 %Up conversion
-txsignal=up_conversion(baseband_signal,conf.f_c);
+txsignal=up_conversion(baseband_signal,conf);
 
 end
 
@@ -64,7 +66,7 @@ QPSK=2;
    
     elseif(mapping_type==QPSK)
         
-        reshape(input_signal, [], 2);
+        input_signal = reshape(input_signal, [], 2);
         GrayMap = 1/sqrt(2) * [(-1-1j) (-1+1j) ( 1-1j) ( 1+1j)];
         out_signal = GrayMap(bi2de(input_signal)+1).' ; % This doesn't work cuz signal is a single column here
         
@@ -90,10 +92,11 @@ function filtered_signal = matched_filter(signal, os_factor, mf_length)
 
 end
 
-function passband_signal=up_conversion(baseband_signal, fc)
+function passband_signal=up_conversion(baseband_signal,conf)
     
-    t = 0:1/fc:((length(baseband_signal)- 1)/fc);
-    passband_signal= real(baseband_signal.*exp(1i*2*pi*fc*t'));
+    
+    t = 0:1/conf.f_s:((length(baseband_signal)- 1)/conf.f_s);
+    passband_signal= real(baseband_signal.*exp(1i*2*pi*conf.f_c*t'));
 
 end
 
