@@ -39,7 +39,8 @@ disp(['FrameSyncIdx ', num2str(data_idx)])
 
 data_length = floor(length(filtered_rx(data_idx:end))/conf.os_factor);
 disp(['nb_symbs: ', num2str(data_length)])
-% data_length = conf.nbits;
+
+% Pre-allocate for speed
 cum_err = 0;
 diff_err = zeros(1,data_length);
 epsilon  = zeros(1,data_length);
@@ -70,14 +71,16 @@ for i=1:data_length
      y_hat = y(1)+int_diff*(y(2)-y(1));
      data(i) = y_hat;
      
-     % Phase Estimation
+%      Phase Estimation
 %      deltaTheta = 1/4*angle(-data(i)^4) + pi/2*(-1:4);
 %      [~, ind] = min(abs(deltaTheta - theta_hat(i)));
 %      theta = deltaTheta(ind);
 %      theta_hat(i+1) = mod(0.01*theta + 0.99*theta_hat(i), 2*pi);
+
+
      
      
-%      data(i) = data(i) * exp(-1i * theta_hat(i+1));
+     data(i) = data(i) * exp(-1i * theta_hat(i+1));
      
           
 end
