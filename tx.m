@@ -53,9 +53,6 @@ end
 
 %Here are the prototypes of all the functions used for the filter
 
-%Do not forget to normalize the energy!
-
-
 
 function out_signal=mapping(input_signal,mapping_type)
 
@@ -72,7 +69,7 @@ QPSK=2;
         
         size_a=length(temp_out_signal)/2;
         out_signal=reshape(temp_out_signal,[size_a,2]);
-        size(out_signal)
+        size(out_signal);
         
     else
         disp('Incorrect mapping type')
