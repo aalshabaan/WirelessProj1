@@ -47,7 +47,7 @@ epsilon  = zeros(1,data_length);
 data = zeros(1,data_length);
 theta_hat = zeros(1,data_length);
 theta_hat(1) = peak_phase;
-y_array=zeros(data_length,2);
+% y_array=zeros(data_length,2);
 
 for i=1:data_length
     
@@ -68,15 +68,15 @@ for i=1:data_length
     
      % linear interpolateion
      y     = filtered_rx(idx_start+sample_diff:idx_start+sample_diff+1);
-     y_array(i,:)=y; %debugging purposes
+%      y_array(i,:)=y; %debugging purposes
      y_hat = y(1)+int_diff*(y(2)-y(1));
      data(i) = y_hat;
      
 %      Phase Estimation
-%      deltaTheta = 1/4*angle(-data(i)^4) + pi/2*(-1:4);
-%      [~, ind] = min(abs(deltaTheta - theta_hat(i)));
-%      theta = deltaTheta(ind);
-%      theta_hat(i+1) = mod(0.01*theta + 0.99*theta_hat(i), 2*pi);
+     deltaTheta = 1/4*angle(-data(i)^4) + pi/2*(-1:4);
+     [~, ind] = min(abs(deltaTheta - theta_hat(i)));
+     theta = deltaTheta(ind);
+     theta_hat(i+1) = mod(0.01*theta + 0.99*theta_hat(i), 2*pi);
 
 
      
