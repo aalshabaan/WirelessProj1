@@ -17,7 +17,7 @@ function [rxbits, conf, raw_bits] = rx(rxsignal,conf,k)
 % dummy 
 
 % Downconversion
-t = 0:1/conf.f_c:((length(rxsignal)-1)/conf.f_c);
+t = 0:1/conf.f_s:((length(rxsignal)-1)/conf.f_s);
 down_converted = rxsignal.*exp(-conf.f_c*2*pi*1i*t');
 
 %Lowpass filtering:
@@ -60,7 +60,7 @@ for i=1:data_length
      fourier_exponents = exp(2*pi*1i*(0:conf.os_factor-1)/conf.os_factor);
      diff_err(i) = fourier_exponents*pwr; % Calculate the power spectrum
      cum_err     = cum_err + diff_err(i);
-     epsilon(i)  = -1/(2*pi)*angle(cum_err);
+     epsilon(i)  = 1/(2*pi)*angle(cum_err);
      
      sample_diff   = floor(epsilon(i)*conf.os_factor); % integer
      int_diff      = mod(epsilon(i)*conf.os_factor,1); % interval [0 1)
@@ -72,18 +72,19 @@ for i=1:data_length
      data(i) = y_hat;
      
      % Phase Estimation
-     deltaTheta = 1/4*angle(-data(i)^4) + pi/2*(-1:4);
-     [~, ind] = min(abs(deltaTheta - theta_hat(i)));
-     theta = deltaTheta(ind);
-     theta_hat(i+1) = mod(0.01*theta + 0.99*theta_hat(i), 2*pi);
+%      deltaTheta = 1/4*angle(-data(i)^4) + pi/2*(-1:4);
+%      [~, ind] = min(abs(deltaTheta - theta_hat(i)));
+%      theta = deltaTheta(ind);
+%      theta_hat(i+1) = mod(0.01*theta + 0.99*theta_hat(i), 2*pi);
      
      
-     data(i) = data(i) * exp(-1i * theta_hat(i+1));
+%      data(i) = data(i) * exp(-1i * theta_hat(i+1));
      
           
 end
 
-
+% data = rxsignal(data_idx:end);
+% data = data(1:conf.os_factor:end-conf.os_factor);
 % Demapping
 BPSK_map = [-1 1];
 QPSK_map =  1/sqrt(2) * [(-1-1j) (-1+1j) ( 1-1j) ( 1+1j)];
@@ -91,7 +92,7 @@ QPSK_map =  1/sqrt(2) * [(-1-1j) (-1+1j) ( 1-1j) ( 1+1j)];
 switch conf.modulation_order
     case 1 %BPSK
         disp('BPSK')
-        [~,ind] = min((ones(data_length,2)*diag(BPSK_map) - diag(data)*ones(data_length,2)),[],2);
+        [~,ind] = min(abs(ones(data_length,2)*diag(BPSK_map) - diag(data)*ones(data_length,2)),[],2);
         rxbits = de2bi(ind-1);
         % Unfold into a single column stream
         raw_bits = rxbits;
@@ -99,11 +100,12 @@ switch conf.modulation_order
         
     case 2 %QPSK
         disp('QPSK')
-        [~,ind] = min((ones(data_length,4)*diag(QPSK_map) - diag(data)*ones(data_length,4)),[],2);
+        [~,ind] = min(abs(ones(data_length,4)*diag(QPSK_map) - diag(data)*ones(data_length,4)),[],2);
+        ind = ind+2;
         rxbits = de2bi(ind-1);
         % Unfold into a single column stream
         raw_bits = rxbits;
-        rxbits = rxbits(1:conf.nbits);
+        rxbits = rxbits(1:conf.nbits)';
     otherwise
         disp('WTF?')
         rxbits = zeros(conf.nbits,1);
