@@ -4,6 +4,13 @@ function [tx_signal,conf] = tx_ofdm(tx_bits,conf)
 %   column
 %   conf: The global configuration object
 
+mapped = map(tx_bits, conf.modulation_order);
+
+time_signal = osifft(mapped, conf.os_factor);
+
+preamble = map(preamble_generate(conf.npreamble),1);
+
+
 
 
 end
