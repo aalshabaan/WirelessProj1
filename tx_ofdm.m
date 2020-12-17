@@ -3,12 +3,17 @@ function [tx_signal,conf] = tx_ofdm(tx_bits,conf,k)
 %   tx_bits: (nbits, 1) The transmitted bitstream, %   conf: The global configuration object
 %   k: the current frame index
 
-% mapped is of size ((tx_bits/modulation_order)+1, N)
+% mapped is of size ((tx_bits/modulation_order)+1, 1)
 %The +1 is the training OFDM symbol used for phase estimation;
 mapped = map(tx_bits, conf.modulation_order);
 
-% time_signal is of size(os_factor*((tx_bits/modulation_order)+1),N)
-time_signal = osifft(mapped, conf.os_factor_ofdm);
+trash_len = conf.N - mod(size(mapped,1),conf.N);
+trash = zeros(trash_len,1);
+mapped = [mapped; trash];
+mapped = reshape(mapped, [], conf.N);
+for i = 1:conf.N
+   time_signal(:,i) = osifft(mapped(:,i),conf.os_factor_ofdm); 
+end
 
 %Add cyclic prefix to symbols
 data_length = size(mapped,1);
@@ -19,9 +24,8 @@ padded_signal = [];
 for i=1:data_length
     idx_start = 1 + (i-1)*conf.os_factor_ofdm;
     idx_range = idx_start:idx_start + conf.os_factor_ofdm-1;
-    idx_end = idx_start + conf.os_factor_ofdm-1;
-    ofdm_symbol = time_signal(idx_range);
-    cyclic_prefix = ofdm_symbol(padding_start_idx:end);
+    ofdm_symbol = time_signal(idx_range,:);
+    cyclic_prefix = ofdm_symbol(padding_start_idx:end,:);
     
     %concatenate the signal with the cyclic prefix and the new symbol
     padded_signal = [padded_signal;cyclic_prefix;ofdm_symbol];
