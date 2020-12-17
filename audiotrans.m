@@ -16,12 +16,12 @@ clear variables
 conf.audiosystem = 'matlab';% Values: 'matlab','native','bypass'
 
 conf.f_s     = 48000;   % sampling rate  
-conf.f_sym   = 1000;     % symbol rate
+conf.f_data   = 1000;     % data rate (bps)
 conf.nframes = 10;       % number of frames to transmit; this parameter is overridden below
 conf.nbits   = 2000;    % number of bits 
 conf.modulation_order = 2; % BPSK:1, QPSK:2
 conf.f_c     = 4000;
-conf.nsubcarriers = 256;
+conf.N = 250;
 conf.f_sep = 8;         %Sub carrier frequency spearation
 conf.ncp = 0.5;         %Cyclic prefix length (relative to the symbol length)
 
@@ -32,10 +32,16 @@ conf.offset     = 0;    % Downconversion frequency offset in ppm, this parameter
 
 % Init Section
 % all calculations that you only have to do once
-conf.os_factor  = conf.f_s/conf.f_sym;
-if mod(conf.os_factor,1) ~= 0
+conf.os_factor_ofdm  = conf.f_s/(conf.N * conf.f_sep);
+% Single carrier os_factor used for the preamble, preamble is BPSK so f_sym
+% = f_data
+conf.os_factor_sc = conf.f_s/(conf.f_data);
+if mod(conf.os_factor_sc,1) ~= 0
    disp('WARNING: Sampling rate must be a multiple of the symbol rate'); 
 end
+assert(mod(conf.os_factor_ofdm,1) == 0, 'OFDM Oversampling Factor is not an integer')
+
+
 conf.nsyms      = ceil(conf.nbits/conf.modulation_order);
 
 % Initialize result structure with zero
@@ -51,21 +57,22 @@ f_symbs = [100 200 500 1000 1500 2000];
 ber = zeros(length(offsets),length(f_symbs),conf.nframes);
 per = zeros(length(offsets),length(f_symbs),1);
 % Results
-for j = 1:length(offsets)
-    conf.offset = offsets(j);
-    for i = 1:length(f_symbs)
-        conf.f_sym = f_symbs(i);
-        conf.os_factor  = conf.f_s/conf.f_sym;
-        if mod(conf.os_factor,1) ~= 0
-            disp('WARNING: Sampling rate must be a multiple of the symbol rate'); 
-        end
+% for j = 1:length(offsets)
+%     conf.offset = offsets(j);
+%     for i = 1:length(f_symbs)
+%         conf.f_sym = f_symbs(i);
+%         conf.os_factor_sc  = conf.f_s/conf.f_data;
+%         
+%         if mod(conf.os_factor,1) ~= 0
+%             disp('WARNING: Sampling rate must be a multiple of the symbol rate'); 
+%         end
         for k=1:conf.nframes
 
             % Generate random data
             txbits = randi([0 1],conf.nbits,1);
 
             % TODO: Implement tx() Transmit Function
-            [txsignal conf] = tx(txbits,conf,k);
+            [txsignal conf] = tx_ofdm(txbits,conf,k);
 
             % % % % % % % % % % % %
             % Begin
@@ -129,9 +136,9 @@ for j = 1:length(offsets)
             end
 
             % Plot received signal for debgging
-    %         figure;
-    %         plot(rxsignal);
-    %         title('Received Signal')
+            figure;
+            plot(rxsignal);
+            title('Received Signal')
 
             %
             % End
@@ -145,10 +152,10 @@ for j = 1:length(offsets)
             res.biterrors(k)    = sum(rxbits ~= txbits);
 
 
-            ber(j,i,k) = (res.biterrors(k))/(res.rxnbits(k));
-        end
-        per(j,i) = sum(ber(j,i,:) > 0)/conf.nframes;
-    end
+%             ber(j,i,k) = (res.biterrors(k))/(res.rxnbits(k));
+%         end
+%         per(j,i) = sum(ber(j,i,:) > 0)/conf.nframes;
+%     end
 end
 
 %%
