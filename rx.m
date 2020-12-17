@@ -96,8 +96,23 @@ for i=1:data_length
             theta = deltaTheta(ind);
             theta_hat(i+1) = mod(0.05*theta + 0.95*theta_hat(i), 2*pi);
      
+<<<<<<< Updated upstream
         
          end
+=======
+     %Introduce a if/case/switch such that phase estimation is done ONLY for QPSK
+     if(conf.modulation_order == QPSK)
+     
+   % Phase Estimation
+     deltaTheta = 1/4*angle(-data(i)^4) + pi/2*(-1:4);
+     [~, ind] = min(abs(deltaTheta - theta_hat(i)));
+     theta = deltaTheta(ind);
+     theta_hat(i+1) = mod(0.01*theta + 0.99*theta_hat(i), 2*pi);
+     %theta_hat(i+1) = mod(theta + theta_hat(i), 2*pi);
+     
+     data(i) = data(i) * exp(-1i * theta_hat(i+1));
+     end
+>>>>>>> Stashed changes
 %      
         data(i) = data(i) * exp(-1i * theta_hat(i+1));
 %      end

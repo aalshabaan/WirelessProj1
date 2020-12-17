@@ -11,9 +11,13 @@
 %   - 'bypass' : no audio transmission, takes txsignal as received signal
 
 % Configuration Values
+<<<<<<< Updated upstream
 clear variables
 
 conf.audiosystem = 'matlab';% Values: 'matlab','native','bypass'
+=======
+conf.audiosystem = 'matlab';%'matlab'; % Values: 'matlab','native','bypass'
+>>>>>>> Stashed changes
 
 conf.f_s     = 48000;   % sampling rate  
 conf.f_data   = 1000;     % data rate (bps)
