@@ -1,8 +1,6 @@
 function [tx_signal,conf] = tx_ofdm(tx_bits,conf,k)
 %tx_ofdm Transforms transmitted bitstream into an OFDM signal
-%   tx_bits: (nbits, N) The transmitted bitstream, one subcarrier per
-%   column
-%   conf: The global configuration object
+%   tx_bits: (nbits, 1) The transmitted bitstream, %   conf: The global configuration object
 %   k: the current frame index
 
 % mapped is of size ((tx_bits/modulation_order)+1, N)
@@ -50,8 +48,8 @@ end
 
 
 function [mapped_signal] = map(tx_bits, mapping)
-
-training_symbol = 1 - 2*ones(1,size(tx_bits,2));
+% A BPSK-encoded 1
+training_symbol = -1;
 
 switch mapping
     case 1 %BPSK
@@ -60,14 +58,12 @@ switch mapping
         %if the number of lines (time samples) is odd, pad the end with
         %zeros
         if (mod(size(tx_bits,1),2) ~= 0)
-            tx_bits = [tx_bits;zeros(1,size(tx_bits,2))];
+            tx_bits = [tx_bits;0];
         end
-        mapped_signal = zeros(size(tx_bits,1)/2,size(tx_bits,2));
         map = 1/sqrt(2) * [(-1-1j) (-1+1j) ( 1-1j) ( 1+1j)];
-        for i = 1:size(tx_bits,2)
-            sub_signal = reshape(tx_bits(:,i),[],2);
-            mapped_signal(:,i) = map(bi2de(sub_signal)+1).';
-        end
+            sub_signal = reshape(tx_bits,[],2);
+            mapped_signal = map(bi2de(sub_signal)+1).';
+   
         
     otherwise
         disp('incorrect mapping type');
