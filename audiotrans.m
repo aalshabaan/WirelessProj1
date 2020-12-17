@@ -11,13 +11,13 @@
 %   - 'bypass' : no audio transmission, takes txsignal as received signal
 
 % Configuration Values
-<<<<<<< Updated upstream
+%<<<<<<< Updated upstream
 clear variables
 
 conf.audiosystem = 'matlab';% Values: 'matlab','native','bypass'
-=======
+%=======
 conf.audiosystem = 'matlab';%'matlab'; % Values: 'matlab','native','bypass'
->>>>>>> Stashed changes
+%>>>>>>> Stashed changes
 
 conf.f_s     = 48000;   % sampling rate  
 conf.f_data   = 1000;     % data rate (bps)
@@ -76,7 +76,7 @@ per = zeros(length(offsets),length(f_symbs),1);
             txbits = randi([0 1],conf.nbits,1);
 
             % TODO: Implement tx() Transmit Function
-            [txsignal conf] = tx_ofdm(txbits,conf,k);
+            [txsignal, conf] = tx_ofdm(txbits,conf,k);
 
             % % % % % % % % % % % %
             % Begin
@@ -150,7 +150,7 @@ per = zeros(length(offsets),length(f_symbs),1);
             % % % % % % % % % % % %
 
             % TODO: Implement rx() Receive Function
-            [rxbits conf]       = rx(rxsignal,conf);
+            [rxbits conf]       = rx_ofdm(rxsignal,conf);
 
             res.rxnbits(k)      = length(rxbits);  
             res.biterrors(k)    = sum(rxbits ~= txbits);

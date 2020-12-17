@@ -26,7 +26,6 @@ down_converted = rxsignal.*exp(-conf.f_c*(1 - conf.offset*1e-6)*2*pi*1i*t');
 
 down_converted = lowpass(down_converted, conf);
 
-
 % Matched-filter
 rolloff = 0.22;
 pulse = rrc(conf.os_factor, rolloff, conf.mf_length);
@@ -96,10 +95,10 @@ for i=1:data_length
             theta = deltaTheta(ind);
             theta_hat(i+1) = mod(0.05*theta + 0.95*theta_hat(i), 2*pi);
      
-<<<<<<< Updated upstream
+%<<<<<<< Updated upstream
         
          end
-=======
+%=======
      %Introduce a if/case/switch such that phase estimation is done ONLY for QPSK
      if(conf.modulation_order == QPSK)
      
@@ -112,7 +111,7 @@ for i=1:data_length
      
      data(i) = data(i) * exp(-1i * theta_hat(i+1));
      end
->>>>>>> Stashed changes
+%>>>>>>> Stashed changes
 %      
         data(i) = data(i) * exp(-1i * theta_hat(i+1));
 %      end
