@@ -6,8 +6,8 @@ t = 0:1/conf.f_s:((length(rxsignal)-1)/conf.f_s);
 down_converted = rxsignal.*exp(-conf.f_c*(1 - conf.offset*1e-6)*2*pi*1i*t');
 
 %Low pass
-epsilon_factor=1.1 %increases the cut off freq slightly above BW_bb
-cut_of_freq=ceil(((conf.N+1)/2)*conf.f_sep)*(epsilon_factor)
+epsilon_factor=1.2 %increses the cut off freq slightly above BW_bb
+cut_of_freq=ceil(((conf.N+1)/2)*conf.f_sep)*(1.2)
 filtered_rx=ofdmlowpass(down_converted,conf,cut_of_freq)
 
 
@@ -15,34 +15,23 @@ filtered_rx=ofdmlowpass(down_converted,conf,cut_of_freq)
 preamble = preamble_generate(conf.npreamble);
 % Map preamble to BPSK
 preamble = 2*preamble - 1;
-[data_idx, peak_phase] = frame_sync(filtered_rx,preamble,conf.os_factor_sc);
+[data_idx, peak_phase] = frame_sync(filtered_rx,preamble,conf.os_factor_ofdm);
 disp(['FrameSyncIdx ', num2str(data_idx)])
 
 
-%OFDM size: os_factor_ofdm echantillons
-%serial : os_factor_ofdm*N 
-%filtered_rx[]
+
+
+
+% Training
+
+
+
 %DFT Back to frequency domain
-
-freq_signal = reshape(rx_signal, [], conf.N);
+rx_signal = reshape(rx_signal, [], conf.N);
 for i = 1:conf.N
-   freq_signal(:,i) = osfft(mapped(:,i),conf.os_factor_ofdm); 
+   rx_signal(:,i) = osfft(mapped(:,i),conf.os_factor_ofdm); 
 end
-
-freq_signal=reshape(freq_signal,[],1);
-
-
 %freq_signal=osfft(,conf.os_factor_ofdm)
-
-
-%Phase estimation
-
-rx_signal[
-
-
-
-
-
 
 
 
@@ -73,7 +62,7 @@ switch conf.modulation_order
 
 
 
-rxbits=rxbits(1:conf.N); %discard the padded 0's
+
 
 end
 

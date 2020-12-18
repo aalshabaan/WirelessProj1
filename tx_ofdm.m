@@ -16,6 +16,7 @@ for i = 1:conf.N
    time_signal(:,i) = osifft(mapped(:,i),conf.os_factor_ofdm); 
 end
 
+time_signal=reshape(time_signal,[],1);
 
 %Add cyclic prefix to symbols
 data_length = size(mapped,1);
