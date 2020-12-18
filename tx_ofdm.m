@@ -7,6 +7,7 @@ function [tx_signal,conf] = tx_ofdm(tx_bits,conf,k)
 %The +1 is the training OFDM symbol used for phase estimation;
 mapped = map(tx_bits, conf.modulation_order);
 
+
 trash_len = conf.N - mod(size(mapped,1),conf.N);
 trash = zeros(trash_len,1);
 mapped = [mapped; trash];
@@ -14,6 +15,7 @@ mapped = reshape(mapped, [], conf.N);
 for i = 1:conf.N
    time_signal(:,i) = osifft(mapped(:,i),conf.os_factor_ofdm); 
 end
+
 
 %Add cyclic prefix to symbols
 data_length = size(mapped,1);

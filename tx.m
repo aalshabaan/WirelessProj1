@@ -81,8 +81,6 @@ QPSK=2;
 end
 
 
-
-
 function filtered_signal = matched_filter(signal, os_factor, mf_length)
 
     rolloff_factor = 0.22;
