@@ -9,7 +9,7 @@ mapped = map(tx_bits, conf.modulation_order);
 
 % time_signal is of size(os_factor*((tx_bits/modulation_order)+1),N)
 time_signal = osifft(mapped, conf.os_factor_ofdm);
-disp(size(mapped))
+disp(size(time_signal)
 
 
 %Add cyclic prefix to symbols
