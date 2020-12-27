@@ -14,9 +14,9 @@
 %<<<<<<< Updated upstream
 clear variables
 
-conf.audiosystem = 'matlab';% Values: 'matlab','native','bypass'
+conf.audiosystem = 'bypass';% Values: 'matlab','native','bypass'
 %=======
-conf.audiosystem = 'matlab';%'matlab'; % Values: 'matlab','native','bypass'
+%conf.audiosystem = 'matlab';%'matlab'; % Values: 'matlab','native','bypass'
 %>>>>>>> Stashed changes
 
 conf.f_s     = 48000;   % sampling rate  
