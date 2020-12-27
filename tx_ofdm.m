@@ -3,15 +3,19 @@ function [tx_signal,conf] = tx_ofdm(tx_bits,conf,k)
 %   tx_bits: (nbits, 1) The transmitted bitstream, %   conf: The global configuration object
 %   k: the current frame index
 
-% mapped is of size ((tx_bits/modulation_order)+1, 1)
-%The +1 is the training OFDM symbol used for phase estimation;
+% mapped is of size ((tx_bits/modulation_order), 1)
+
 mapped = map(tx_bits, conf.modulation_order);
+
+% Add training symbol (BPSK OFDM, all -1)
+training_sym = -ones(conf.N,1);
 
 
 trash_len = conf.N - mod(size(mapped,1),conf.N);
 trash = zeros(trash_len,1);
 mapped = [mapped; trash];
 mapped = reshape(mapped, [], conf.N);
+mapped = [training_sym;mapped];
 for i = 1:conf.N
    time_signal(:,i) = osifft(mapped(:,i),conf.os_factor_ofdm); 
 end
@@ -55,8 +59,6 @@ end
 
 
 function [mapped_signal] = map(tx_bits, mapping)
-% A BPSK-encoded 1
-training_symbol = -1;
 
 switch mapping
     case 1 %BPSK
