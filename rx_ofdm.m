@@ -33,17 +33,21 @@ disp(['FrameSyncIdx ', num2str(data_idx)])
 %We select the filtered signal starting from the begining index given by
 %the frame sync
 filtered_rx=filtered_rx(data_idx:end);
-
+post_frame_sync_filtered_rx=filtered_rx;
 %DFT Back to frequency domain
  
 T=1/conf.f_sep;
 len_input_fft=T*conf.f_s;
 
+%trash_len= length(filtered_rx)-mod 
+
 trash_len=len_input_fft-mod(length(filtered_rx),len_input_fft);
 trash = zeros(trash_len,1);
 
 filtered_rx = [filtered_rx; trash];
+
 filtered_rx = reshape(filtered_rx,  len_input_fft, []);
+
 num_channels=size(filtered_rx);
 
 for i = 1:num_channels(2)
@@ -56,6 +60,10 @@ freq_signal=reshape(freq_signal,[],1);
 %Equalizer
 
 %Phase estimation
+
+
+phase_error=abs(freq_signal(1)-pi)  
+
 
 %rx_signal[
 
