@@ -17,37 +17,42 @@ mapped = [mapped; trash];
 mapped = reshape(mapped, [], conf.N);
 mapped = [training_sym ;mapped];
 for i = 1:size(mapped,1)
-   time_signal(i,:) = osifft(mapped(:,i),conf.os_factor_ofdm); 
+   time_signal(i,:) = osifft(mapped(i,:),conf.os_factor_ofdm); 
 end
 
-time_signal=reshape(time_signal,[],1);
+%Add the cyclic prefix
+padding_start_index = floor(size(time_signal,2)*conf.ncp);
+cyclic_prefix = time_signal(:,padding_start_index:end);
+padded_signal = [cyclic_prefix, time_signal];
 
-%Add cyclic prefix to symbols
-data_length = size(mapped,1);
-%relative index from the start of the OFDM symbol
-padding_start_idx = floor(conf.ncp*data_length*conf.os_factor_ofdm);
-padded_signal = [];
+padded_signal = reshape(padded_signal,[],1);
 
-for i=1:data_length
-    idx_start = 1 + (i-1)*data_length*conf.os_factor_ofdm;
-    idx_range = idx_start:idx_start + data_length*conf.os_factor_ofdm-1;
-    ofdm_symbol = time_signal(idx_range,:);
-    cyclic_prefix = ofdm_symbol(padding_start_idx:end,:);
-    
-    %concatenate the signal with the cyclic prefix and the new symbol
-    padded_signal = [padded_signal;cyclic_prefix;ofdm_symbol];
-end
+% time_signal=reshape(time_signal,[],1);
+% 
+% %Add cyclic prefix to symbols
+% data_length = size(mapped,1);
+% %relative index from the start of the OFDM symbol
+% padding_start_idx = floor(conf.ncp*data_length*conf.os_factor_ofdm);
+% padded_signal = [];
+% 
+% for i=1:data_length
+%     idx_start = 1 + (i-1)*data_length*conf.os_factor_ofdm;
+%     idx_range = idx_start:idx_start + data_length*conf.os_factor_ofdm-1;
+%     ofdm_symbol = time_signal(idx_range,:);
+%     cyclic_prefix = ofdm_symbol(padding_start_idx:end,:);
+%     
+%     %concatenate the signal with the cyclic prefix and the new symbol
+%     padded_signal = [padded_signal;cyclic_prefix;ofdm_symbol];
+% end
 
 %Generate a single-carrier preamble, oversample and then pulse shape it
 preamble = upsample(map(preamble_generate(conf.npreamble),1), conf.os_factor_sc);
 analog_preamble = conv(preamble,rrc(conf.os_factor_sc,0.22,20));
 
 %Assign the preamble to the first carrier
-ofdm_preamble = zeros(size(analog_preamble,1),size(padded_signal,2));
-ofdm_preamble(:,1) = analog_preamble;
 
 %Append the preamble to the padded signal
-baseband_signal = [ofdm_preamble;padded_signal];
+baseband_signal = [analog_preamble;padded_signal];
 
 %Upmixing to the carrier frequency
 t = 0:1/conf.f_s:(length(baseband_signal)-1)/conf.f_s;

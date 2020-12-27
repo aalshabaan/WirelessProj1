@@ -33,7 +33,7 @@ disp(['FrameSyncIdx ', num2str(data_idx)])
 %We select the filtered signal starting from the begining index given by
 %the frame sync
 filtered_rx=filtered_rx(data_idx:end);
-post_frame_sync_filtered_rx=filtered_rx;
+% post_frame_sync_filtered_rx=filtered_rx;
 %DFT Back to frequency domain
  
 T=1/conf.f_sep;
