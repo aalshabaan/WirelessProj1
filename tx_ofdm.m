@@ -16,8 +16,8 @@ trash = zeros(trash_len,1);
 mapped = [mapped; trash];
 mapped = reshape(mapped, [], conf.N);
 mapped = [training_sym ;mapped];
-for i = 1:conf.N
-   time_signal(:,i) = osifft(mapped(:,i),conf.os_factor_ofdm); 
+for i = 1:size(mapped,1)
+   time_signal(i,:) = osifft(mapped(:,i),conf.os_factor_ofdm); 
 end
 
 time_signal=reshape(time_signal,[],1);
@@ -25,12 +25,12 @@ time_signal=reshape(time_signal,[],1);
 %Add cyclic prefix to symbols
 data_length = size(mapped,1);
 %relative index from the start of the OFDM symbol
-padding_start_idx = floor(conf.ncp*conf.os_factor_ofdm);
+padding_start_idx = floor(conf.ncp*data_length*conf.os_factor_ofdm);
 padded_signal = [];
 
 for i=1:data_length
-    idx_start = 1 + (i-1)*conf.os_factor_ofdm;
-    idx_range = idx_start:idx_start + conf.os_factor_ofdm-1;
+    idx_start = 1 + (i-1)*data_length*conf.os_factor_ofdm;
+    idx_range = idx_start:idx_start + data_length*conf.os_factor_ofdm-1;
     ofdm_symbol = time_signal(idx_range,:);
     cyclic_prefix = ofdm_symbol(padding_start_idx:end,:);
     
