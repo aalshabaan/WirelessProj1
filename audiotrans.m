@@ -140,9 +140,9 @@ per = zeros(length(offsets),length(f_symbs),1);
             end
 
             % Plot received signal for debgging
-            figure;
-            plot(rxsignal);
-            title('Received Signal')
+%             figure;
+%             plot(rxsignal);
+%             title('Received Signal')
 
             %
             % End

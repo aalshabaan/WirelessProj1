@@ -8,14 +8,14 @@ function [tx_signal,conf] = tx_ofdm(tx_bits,conf,k)
 mapped = map(tx_bits, conf.modulation_order);
 
 % Add training symbol (BPSK OFDM, all -1)
-training_sym = -ones(conf.N,1);
+training_sym = -ones(1,conf.N);
 
 
-trash_len = conf.N - mod(size(mapped,1),conf.N);
+trash_len = mod(conf.N - mod(size(mapped,1),conf.N),conf.N);
 trash = zeros(trash_len,1);
 mapped = [mapped; trash];
 mapped = reshape(mapped, [], conf.N);
-mapped = [training_sym;mapped];
+mapped = [training_sym ;mapped];
 for i = 1:conf.N
    time_signal(:,i) = osifft(mapped(:,i),conf.os_factor_ofdm); 
 end
@@ -77,8 +77,5 @@ switch mapping
     otherwise
         disp('incorrect mapping type');
 end
-
-mapped_signal = [training_symbol; mapped_signal];
-
 
 end
