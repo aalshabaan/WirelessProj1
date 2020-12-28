@@ -61,9 +61,20 @@ freq_signal=reshape(freq_signal,[],1);
 
 %Equalizer
 
+
+
+
+
 %Phase estimation
 
-%phase_error=(freq_signal(1)-pi)  
+phase_err=mean((angle(freq_signal(1:conf.N))-pi));
+
+
+%freq_signal=freq_signal-phase_error;
+module=abs(freq_signal);
+angle_delta=mod(angle(freq_signal)-phase_err,2*pi);
+
+freq_signal=abs(freq_signal).*exp(j*angle_delta);
 
 
 %demapping
