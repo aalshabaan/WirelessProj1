@@ -61,15 +61,15 @@ f_symbs = [100 200 500 1000 1500 2000];
 ber = zeros(length(offsets),length(f_symbs),conf.nframes);
 per = zeros(length(offsets),length(f_symbs),1);
 % Results
- %for j = 1:length(offsets)
-  %   conf.offset = offsets(j);
-   %  for i = 1:length(f_symbs)
-    %     conf.f_sym = f_symbs(i);
-     %    conf.os_factor_sc  = conf.f_s/conf.f_data;
+% for j = 1:length(offsets)
+%     conf.offset = offsets(j);
+%     for i = 1:length(f_symbs)
+%         conf.f_sym = f_symbs(i);
+%         conf.os_factor_sc  = conf.f_s/conf.f_data;
 %         
-        % if mod(conf.os_factor,1) ~= 0
-         %    disp('WARNING: Sampling rate must be a multiple of the symbol rate'); 
-         %end
+%         if mod(conf.os_factor,1) ~= 0
+%             disp('WARNING: Sampling rate must be a multiple of the symbol rate'); 
+%         end
         for k=1:conf.nframes
 
             % Generate random data
@@ -156,12 +156,11 @@ per = zeros(length(offsets),length(f_symbs),1);
             res.biterrors(k)    = sum(rxbits ~= txbits);
 
 
-        %    ber(j,i,k) = (res.biterrors(k))/(res.rxnbits(k));
-       %  end
-      %   per(j,i) = sum(ber(j,i,:) > 0)/conf.nframes;
-     %end
- end
-
+            ber(j,i,k) = (res.biterrors(k))/(res.rxnbits(k));
+         end
+         per(j,i) = sum(ber(j,i,:) > 0)/conf.nframes;
+     end
+end
 
 %%
 figure

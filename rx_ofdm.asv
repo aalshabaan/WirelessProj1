@@ -76,26 +76,12 @@ freq_signal=reshape(freq_signal,[],1);
 %data_length=floor(length(freq_signal)); 
 %data = freq_signal;
 
-%data=freq_signal(1:conf.nbits);
-%data_length=floor(length(data));
+data=freq_signal(1:conf.nbits);
+data_length=floor(length(data));
 
-%trn_factor=0.2;
-%training_data=data(1:trn_factor*length(data));
-%training_data_length=floor(length(training_data));
+training_data=data(1:trn_factor*length(data));
 
-training_data=freq_signal(1:Conf.N*Conf.os_factor_ofdm);
-training_data_length=floor(length(training_data));
-
-%data=freq(:end)
-%data_length=floor(length(data))
-
-
-
-% [~,ind] = min(abs(ones(data_length,2)*diag(BPSK_map) - diag(data)*ones(data_length,2)),[],2);
- %       rxbits = de2bi(ind-1);
-        % Unfold into a single column stream
-        
-  %      rxbits = rxbits(1:conf.nbits);
+training_data_length
 
 
 
