@@ -7,23 +7,22 @@ function [tx_signal,conf] = tx_ofdm(tx_bits,conf,k)
 
 mapped = map(tx_bits, conf.modulation_order);
 
-% Add training symbol (BPSK OFDM, all -1)
-training_sym = -ones(1,conf.N);
-
-
 trash_len = mod(conf.N - mod(size(mapped,1),conf.N),conf.N);
 trash = zeros(trash_len,1);
 mapped = [mapped; trash];
 mapped = reshape(mapped, [], conf.N);
+
+% Add training symbol (BPSK OFDM, all -1)
+training_sym = -ones(1,conf.N);
 mapped = [training_sym ;mapped];
 for i = 1:size(mapped,1)
-   time_signal(i,:) = osifft(mapped(i,:),conf.os_factor_ofdm); 
+   time_signal(:,i) = osifft(mapped(i,:),conf.os_factor_ofdm); 
 end
 
 %Add the cyclic prefix
-padding_start_index = floor(size(time_signal,2)*conf.ncp);
-cyclic_prefix = time_signal(:,padding_start_index:end);
-padded_signal = [cyclic_prefix, time_signal];
+padding_start_index = floor(size(time_signal,1)*conf.ncp);
+cyclic_prefix = time_signal(padding_start_index:end,:);
+padded_signal = [cyclic_prefix; time_signal];
 
 padded_signal = reshape(padded_signal,[],1);
 
