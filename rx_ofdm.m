@@ -40,36 +40,30 @@ T=1/conf.f_sep;
 len_input_fft=T*conf.f_s;
 
 %trash_len= length(filtered_rx)-mod 
+if(mod(length(filtered_rx),len_input_fft) ~= 0)
+    
+    trash_len=len_input_fft-mod(length(filtered_rx),len_input_fft);
+    trash = zeros(trash_len,1);
 
-trash_len=len_input_fft-mod(length(filtered_rx),len_input_fft);
-trash = zeros(trash_len,1);
+    filtered_rx = [filtered_rx; trash];
+end
 
-filtered_rx = [filtered_rx; trash];
 
 filtered_rx = reshape(filtered_rx,  len_input_fft, []);
 
-num_channels=size(filtered_rx);
+%num_channels=size(filtered_rx);
 
-for i = 1:num_channels(2)
+for i = 1:size(filtered_rx,2)%num_channels(2)
    freq_signal(:,i) = osfft(filtered_rx(:,i),conf.os_factor_ofdm); 
 end
 
 freq_signal=reshape(freq_signal,[],1);
 
-
 %Equalizer
 
 %Phase estimation
 
-
-%phase_error=abs(freq_signal(1)-pi)  
-
-
-%rx_signal[
-
-
-
-
+%phase_error=(freq_signal(1)-pi)  
 
 
 %demapping
@@ -83,18 +77,18 @@ freq_signal=reshape(freq_signal,[],1);
 %training_data=data(1:trn_factor*length(data));
 %training_data_length=floor(length(training_data));
 
+%BPSK training data demap:
 training_data=freq_signal(1: conf.N);
 trn_data_len=floor(length(training_data));
 
-
  BPSK_map = [-1 1];
- 
  [~,ind] = min(abs(ones(trn_data_len,2)*diag(BPSK_map) - diag(training_data)*ones(trn_data_len,2)),[],2);
         trainbits = de2bi(ind-1);
         % Unfold into a single column stream
         trainbits = trainbits(1:conf.N);
- 
-%data=freq
+        
+        
+%Data demap
 data=freq_signal((conf.N+1) : end);
 data_length=floor(length(data));
 

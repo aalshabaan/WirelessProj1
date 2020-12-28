@@ -155,7 +155,8 @@ per = zeros(length(offsets),length(f_symbs),1);
             res.rxnbits(k)      = length(rxbits);  
             res.biterrors(k)    = sum(rxbits ~= txbits);
 
-
+            ber(1,1,k)=(res.biterrors(k))/(res.rxnbits(k));
+            
         %    ber(j,i,k) = (res.biterrors(k))/(res.rxnbits(k));
        %  end
       %   per(j,i) = sum(ber(j,i,:) > 0)/conf.nframes;
