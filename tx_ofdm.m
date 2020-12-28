@@ -48,10 +48,14 @@ padded_signal = reshape(padded_signal,[],1);
 preamble = upsample(map(preamble_generate(conf.npreamble),1), conf.os_factor_sc);
 analog_preamble = conv(preamble,rrc(conf.os_factor_sc,0.22,20));
 
-%Assign the preamble to the first carrier
+%Normalize the signal's energy
+preamble_energy = mean(abs(analog_preamble));
+signal_energy = mean(abs(padded_signal));
+
+normalized_signal = padded_signal * preamble_energy/signal_energy;
 
 %Append the preamble to the padded signal
-baseband_signal = [analog_preamble;padded_signal];
+baseband_signal = [analog_preamble;normalized_signal];
 
 %Upmixing to the carrier frequency
 t = 0:1/conf.f_s:(length(baseband_signal)-1)/conf.f_s;
