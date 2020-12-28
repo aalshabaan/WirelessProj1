@@ -49,10 +49,10 @@ preamble = upsample(map(preamble_generate(conf.npreamble),1), conf.os_factor_sc)
 analog_preamble = conv(preamble,rrc(conf.os_factor_sc,0.22,20));
 
 %Normalize the signal's energy
-preamble_energy = mean(abs(analog_preamble));
-signal_energy = mean(abs(padded_signal));
+preamble_energy = mean(abs(analog_preamble).^2);
+signal_energy = mean(abs(padded_signal).^2);
 
-normalized_signal = padded_signal * preamble_energy/signal_energy;
+normalized_signal = padded_signal /(2e4*signal_energy);
 
 %Append the preamble to the padded signal
 baseband_signal = [analog_preamble;normalized_signal];
