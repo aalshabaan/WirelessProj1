@@ -83,26 +83,24 @@ freq_signal=reshape(freq_signal,[],1);
 %training_data=data(1:trn_factor*length(data));
 %training_data_length=floor(length(training_data));
 
-training_data=freq_signal(1:Conf.N*Conf.os_factor_ofdm);
-training_data_length=floor(length(training_data));
-
-%data=freq(:end)
-%data_length=floor(length(data))
+training_data=freq_signal(1: conf.N);
+trn_data_len=floor(length(training_data));
 
 
-
-% [~,ind] = min(abs(ones(data_length,2)*diag(BPSK_map) - diag(data)*ones(data_length,2)),[],2);
- %       rxbits = de2bi(ind-1);
+ BPSK_map = [-1 1];
+ 
+ [~,ind] = min(abs(ones(trn_data_len,2)*diag(BPSK_map) - diag(training_data)*ones(trn_data_len,2)),[],2);
+        trainbits = de2bi(ind-1);
         % Unfold into a single column stream
-        
-  %      rxbits = rxbits(1:conf.nbits);
-
-
+        trainbits = trainbits(1:conf.N);
+ 
+%data=freq
+data=freq_signal((conf.N+1) : end);
+data_length=floor(length(data));
 
 BPSK=1;
 QPSK=2;
 
-BPSK_map = [-1 1];
 QPSK_map =  1/sqrt(2) * [(-1-1j) (-1+1j) ( 1-1j) ( 1+1j)];
 
 switch conf.modulation_order
@@ -112,7 +110,9 @@ switch conf.modulation_order
         rxbits = de2bi(ind-1);
         % Unfold into a single column stream
         
-        rxbits = rxbits(1:conf.nbits);
+        %rxbits = rxbits(1:conf.nbits);
+        
+        rxbits=rxbits(1:conf.nbits-conf.N);
         
     case QPSK %QPSK
         disp('QPSK')
@@ -121,13 +121,17 @@ switch conf.modulation_order
         rxbits = de2bi(ind-1);
         % Unfold into a single column stream
         
-        rxbits = rxbits(1:conf.nbits)';
+       % rxbits = rxbits(1:conf.nbits)';
+        rxbits=rxbits(1:conf.nbits-conf.N)';
+        
     otherwise
         disp('WTF?')
         rxbits = zeros(conf.nbits,1);
+%rxbits=rxbits(1:conf.nbits); %discard the padded 0's
 
-
-rxbits=rxbits(1:conf.nbits); %discard the padded 0's
+end
+    
+rxbits=[trainbits;rxbits];
 
 end
 
