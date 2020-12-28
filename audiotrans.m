@@ -86,7 +86,8 @@ per = zeros(length(offsets),length(f_symbs),1);
             % normalize values
             peakvalue       = max(abs(txsignal));
             normtxsignal    = txsignal / (peakvalue + 0.3);
-
+            
+            
             % create vector for transmission
             rawtxsignal = [ zeros(conf.f_s,1) ; normtxsignal ;  zeros(conf.f_s,1) ]; % add padding before and after the signal
             rawtxsignal = [  rawtxsignal  zeros(size(rawtxsignal)) ]; % add second channel: no signal
