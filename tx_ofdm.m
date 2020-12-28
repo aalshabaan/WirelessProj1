@@ -12,9 +12,10 @@ trash = zeros(trash_len,1);
 
 mapped = [mapped; trash];
 mapped = reshape(mapped, [], conf.N);
-
+conf.debug = reshape(mapped.', [], 1);
 % Add training symbol (BPSK OFDM, all -1)
 training_sym = -ones(1,conf.N);
+
 mapped = [training_sym ;mapped];
 for i = 1:size(mapped,1)
    time_signal(:,i) = osifft(mapped(i,:),conf.os_factor_ofdm); 
@@ -33,7 +34,7 @@ padded_signal = reshape(padded_signal,[],1);
 
 %Generate a single-carrier preamble, oversample and then pulse shape it
 preamble = upsample(map(preamble_generate(conf.npreamble),1), conf.os_factor_sc);
-analog_preamble = conv(preamble,rrc(conf.os_factor_sc,0.22,20));
+shaped_preamble = conv(preamble,rrc(conf.os_factor_sc,0.22,20));
 
 %Normalize the signal's energy
 signal_energy = mean(abs(padded_signal).^2);
@@ -41,12 +42,13 @@ signal_energy = mean(abs(padded_signal).^2);
 normalized_signal = padded_signal /(2e4*signal_energy);
 
 %Append the preamble to the padded signal
-baseband_signal = [analog_preamble;normalized_signal];
+baseband_signal = [shaped_preamble;normalized_signal];
+% tx_signal = baseband_signal;
 
 %Upmixing to the carrier frequency
 t = 0:1/conf.f_s:(length(baseband_signal)-1)/conf.f_s;
 tx_signal = real(baseband_signal.*exp(2*pi*1i*conf.f_c*t'));
-conf.debug=padded_signal;
+
 
 
 end

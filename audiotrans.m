@@ -24,7 +24,7 @@ conf.f_data   = 1000;     % data rate (bps)
 conf.nframes = 1;       % number of frames to transmit; this parameter is overridden below
 conf.nbits   = 2000;    % number of bits 
 conf.modulation_order = 2; % BPSK:1, QPSK:2
-conf.f_c     = 4000;
+conf.f_c     = 20000;
 conf.N = 250;
 conf.f_sep = 8;         %Sub carrier frequency spearation
 conf.ncp = 0.5;         %Cyclic prefix length (relative to the symbol length)
@@ -151,7 +151,7 @@ per = zeros(length(offsets),length(f_symbs),1);
             % % % % % % % % % % % %
 
             % TODO: Implement rx() Receive Function
-            [rxbits conf]       = rx_ofdm(rxsignal,conf);
+            [rxbits conf]       = rx_abed(rxsignal,conf);
 
             res.rxnbits(k)      = length(rxbits);  
             res.biterrors(k)    = sum(rxbits ~= txbits);
