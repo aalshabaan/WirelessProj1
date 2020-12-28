@@ -62,7 +62,7 @@ freq_signal=reshape(freq_signal,[],1);
 %Phase estimation
 
 
-phase_error=abs(freq_signal(1)-pi)  
+%phase_error=abs(freq_signal(1)-pi)  
 
 
 %rx_signal[
