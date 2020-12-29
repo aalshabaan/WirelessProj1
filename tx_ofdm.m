@@ -5,14 +5,19 @@ function [tx_signal,conf] = tx_ofdm(tx_bits,conf,k)
 
 % mapped is of size ((tx_bits/modulation_order), 1)
 
+conf.debug=tx_bits;
+
+
 mapped = map(tx_bits, conf.modulation_order);
+
+conf.debug_2=mapped;
 
 trash_len = mod(conf.N - mod(size(mapped,1),conf.N),conf.N);
 trash = zeros(trash_len,1);
 
 mapped = [mapped; trash];
 mapped = reshape(mapped, [], conf.N);
-conf.debug = reshape(mapped.', [], 1);
+%conf.debug = reshape(mapped.', [], 1);
 % Add training symbol (BPSK OFDM, all -1)
 training_sym = -ones(1,conf.N);
 
@@ -70,12 +75,12 @@ switch mapping
 %             sub_signal = reshape(tx_bits',[],2);
 %             mapped_signal = map(bi2de(sub_signal)+1).';
             bits = 2 * (tx_bits - 0.5);
-            bits2 = reshape(bits, [], 2);
+            bits2 = reshape(bits,2,[]);
 
-            real = ((bits2(:,2) > 0)-0.5)*sqrt(2);
-            imag = ((bits2(:,1) > 0)-0.5)*sqrt(2);
+            imag = ((bits2(1,:) > 0)-0.5)*sqrt(2);
+            real = ((bits2(2,:) > 0)-0.5)*sqrt(2);
 
-            mapped_signal = (real + 1i*imag);
+            mapped_signal = (real + 1i*imag).';
    
         
     otherwise

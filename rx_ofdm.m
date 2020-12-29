@@ -40,7 +40,7 @@ filtered_rx=filtered_rx(data_idx:data_idx + conf.N*conf.os_factor_ofdm*conf.nsym
 
 
 %%%DBG%%%
-DEBUG_ERROR_RATE = mean(abs(filtered_rx - conf.debug) > 1e-6)
+%DEBUG_ERROR_RATE = mean(abs(filtered_rx - conf.debug) > 1e-6)
 
 %%%DBG%%%
 % post_frame_sync_filtered_rx=filtered_rx;
@@ -104,7 +104,6 @@ equalized_signal = reshape(equalized_signal,[],1);
 training_sym = freq_signal(:,1);
 equalized_training = training_sym./H;
 
-
 %%DEBUG%%
 
 
@@ -148,6 +147,13 @@ switch conf.modulation_order
 end
     
 % rxbits=[trainbits;rxbits];
+
+%%Debug:
+
+debug_ber=sum(conf.debug~=rxbits)/length(rxbits)
+
+%%Debug
+
 
 end
 

@@ -54,9 +54,10 @@ equalized_data = data_symbs./H;
 data = reshape(equalized_data.',[],1);
 
 %DEBUG data before demap
-data_before_demap=data; 
+data_=data; 
 
 %%
+
 
 %Demapping
 BPSK=1;
