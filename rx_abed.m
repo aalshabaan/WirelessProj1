@@ -8,7 +8,7 @@ baseband_rx = rxsignal .* exp(-2*pi*1i*conf.f_c*t');
 
 %Lowpass filtering
 
-freq_margin = 2;
+freq_margin = 1.1;
 bandwidth = ceil((conf.N+1)/2)*conf.f_sep;
 filtered_rx = ofdmlowpass(baseband_rx,conf,freq_margin*bandwidth);
 
@@ -17,15 +17,17 @@ filtered_rx = ofdmlowpass(baseband_rx,conf,freq_margin*bandwidth);
 
 preamble = 1 - 2*preamble_generate(conf.npreamble); %Mapped to BPSK
 [data_idx, ~] = frame_sync(filtered_rx,preamble,conf.os_factor_sc);
-len_symbol = conf.N*conf.os_factor_ofdm*(1+conf.ncp);
+% len_symbol = floor(conf.N*conf.os_factor_ofdm*(1+conf.ncp));
+len_symbol = floor(conf.N*conf.os_factor_ofdm + conf.ncp);
 relevant_rx = filtered_rx(data_idx:data_idx + conf.nsymbols*len_symbol-1);
 
 
 %Parallelize the symbols
 padded_ofdm_symbols = reshape(relevant_rx, len_symbol, []);
-len_cp = len_symbol * (conf.ncp/(1+conf.ncp));
+% len_cp = len_symbol * (conf.ncp/(1+conf.ncp));
 %Remove the cyclic prefix
-ofdm_time_symbols = padded_ofdm_symbols(len_cp + 1:end,:);
+% ofdm_time_symbols = padded_ofdm_symbols(len_cp + 1:end,:);
+ofdm_time_symbols = padded_ofdm_symbols(conf.ncp + 1:end,:);
 
 % %%%DEBUG%%%
 % figure
@@ -54,8 +56,7 @@ conf.H = H;
 %Serialize data symbols
 data = reshape(equalized_data,[],1);
 
-%DEBUG data before demap
-data_before_demap=data; 
+
 
 %%
 
@@ -108,8 +109,8 @@ end
 
 
 
-REAL_ERRS = sum(real(data_symbs) .* real(conf.debug_2) < 0, 'all')
-IMAG_ERRS = sum(imag(data_symbs) .* imag(conf.debug_2) < 0, 'all')
+REAL_ERRS = sum(real(equalized_data) .* real(conf.debug_2) < 0, 'all')
+IMAG_ERRS = sum(imag(equalized_data) .* imag(conf.debug_2) < 0, 'all')
 %%%DEBUG%%%
 
 end

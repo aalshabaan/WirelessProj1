@@ -33,8 +33,9 @@ conf.nsymbols = size(time_signal,2);
 
 
 %Add the cyclic prefix
-padding_start_index = floor(size(time_signal,1)*(1-conf.ncp));
-cyclic_prefix = time_signal(padding_start_index+1:end,:);
+% padding_start_index = floor(size(time_signal,1)*(1-conf.ncp));
+% cyclic_prefix = time_signal(padding_start_index+1:end,:);
+cyclic_prefix = time_signal(end - conf.ncp:end,:);
 padded_signal = [cyclic_prefix; time_signal];
 
 padded_signal = reshape(padded_signal,[],1);

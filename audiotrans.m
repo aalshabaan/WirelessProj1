@@ -20,14 +20,14 @@ conf.audiosystem = 'matlab';% Values: 'matlab','native','bypass'
 %>>>>>>> Stashed changes
 
 conf.f_s     = 48000;   % sampling rate  
-conf.f_data   = 1000;     % data rate (bps)
+conf.f_data   = 1000;     % data rate (bps) for the single carrier preamble, OFDM data rate is determined by N and f_sep
 conf.nframes = 1;       % number of frames to transmit; this parameter is overridden below
-conf.nbits   = 40000;    % number of bits 
+conf.nbits   = 2000;    % number of bits 
 conf.modulation_order = 2; % BPSK:1, QPSK:2
-conf.f_c     = 4000;
+conf.f_c     = 10000;
 conf.N = 250;
 conf.f_sep = 8;         %Sub carrier frequency spearation
-conf.ncp = 0.01;         %Cyclic prefix length (relative to the symbol length)
+conf.ncp = 300;         %Cyclic prefix length (in samples)
 
 
 conf.npreamble  = 100;
@@ -55,21 +55,25 @@ res.rxnbits     = zeros(conf.nframes,1);
 % TODO: To speed up your simulation pregenerate data you can reuse
 % beforehand.
 
-offsets = 2:2:10;
-f_symbs = [100 200 500 1000 1500 2000];
+Ns = [100 200 250 500 1000];
+f_datas = [500 1000 2000 4000 8000 ];
+
+
 %%
-ber = zeros(length(offsets),length(f_symbs),conf.nframes);
-per = zeros(length(offsets),length(f_symbs),1);
+ber = zeros(length(Ns),length(f_datas),conf.nframes);
+per = zeros(length(Ns),length(f_datas),1);
 % Results
- %for j = 1:length(offsets)
-  %   conf.offset = offsets(j);
-   %  for i = 1:length(f_symbs)
-    %     conf.f_sym = f_symbs(i);
-     %    conf.os_factor_sc  = conf.f_s/conf.f_data;
-%         
-        % if mod(conf.os_factor,1) ~= 0
-         %    disp('WARNING: Sampling rate must be a multiple of the symbol rate'); 
-         %end
+ for j = 1:length(Ns)
+    conf.N = Ns(j);
+    for i = 1:length(f_datas)
+        conf.f_data = f_datas(i);
+        conf.f_sep = conf.f_data/conf.N;
+        conf.os_factor_sc  = conf.f_s/conf.f_data;
+        conf.os_factor_ofdm = conf.f_s/(conf.N * conf.f_sep);
+        
+        if mod(conf.os_factor_sc,1) ~= 0
+            disp('WARNING: Sampling rate must be a multiple of the symbol rate'); 
+         end
         for k=1:conf.nframes
 
             % Generate random data
@@ -156,23 +160,41 @@ per = zeros(length(offsets),length(f_symbs),1);
             res.rxnbits(k)      = length(rxbits);  
             res.biterrors(k)    = sum(rxbits ~= txbits);
 
-            ber(1,1,k)=(res.biterrors(k))/(res.rxnbits(k))
             
-        %    ber(j,i,k) = (res.biterrors(k))/(res.rxnbits(k));
-       %  end
-      %   per(j,i) = sum(ber(j,i,:) > 0)/conf.nframes;
-     %end
+           ber(j,i,k) = (res.biterrors(k))/(res.rxnbits(k));
+           H{j,i} = conf.H;
+        end
+        per(j,i) = sum(ber(j,i,:) > 0)/conf.nframes;
+     end
  end
 
 
 %%
-% figure
-% for i = 1:length(offsets);
-%     hold on
-%     plot(f_symbs,mean(ber(i,:,:),3),'DisplayName', ['offset = ',num2str(offsets(i)), ' parts per million']);
-% end
-% hold off
-% xlabel('Symbol Rate (Bd)')
-% ylabel('BER')
-% legend('show')
-% title('Bit Error Rate as a function of Symbol Frequency')
+figure
+for i = 1:length(Ns)
+    hold on
+    plot(f_datas,mean(ber(i,:,:),3),'DisplayName', ['N = ',num2str(Ns(i))]);
+end
+hold off
+xlabel('Carrier separation (Hz)')
+ylabel('BER')
+legend('show')
+title('Bit Error Rate as a function of Carrier Separation')
+
+%%
+i = 5;
+j = 3;
+figure
+f = conf.f_c - 0.5*Ns(i)*conf.f_sep:conf.f_sep:conf.f_c+0.5*Ns(i)*conf.f_sep-1;
+subplot(2,1,1)
+plot(f,abs(H{i,j}))
+title('Channel Frequency Response Amplitude');
+subplot(2,1,2)
+plot(f,angle(H{i,j}))
+title('Channel Frequency Response Argument');
+
+%%
+figure
+plot(abs(ifft(H{i,j})))
+xlabel('sample')
+title('Channel Impulse Response Amplitude');
