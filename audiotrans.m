@@ -14,7 +14,7 @@
 %<<<<<<< Updated upstream
 clear variables
 
-conf.audiosystem = 'bypass';% Values: 'matlab','native','bypass'
+conf.audiosystem = 'matlab';% Values: 'matlab','native','bypass'
 %=======
 %conf.audiosystem = 'matlab';%'matlab'; % Values: 'matlab','native','bypass'
 %>>>>>>> Stashed changes
@@ -22,12 +22,12 @@ conf.audiosystem = 'bypass';% Values: 'matlab','native','bypass'
 conf.f_s     = 48000;   % sampling rate  
 conf.f_data   = 1000;     % data rate (bps)
 conf.nframes = 1;       % number of frames to transmit; this parameter is overridden below
-conf.nbits   = 2000;    % number of bits 
+conf.nbits   = 40000;    % number of bits 
 conf.modulation_order = 2; % BPSK:1, QPSK:2
-conf.f_c     = 20000;
+conf.f_c     = 4000;
 conf.N = 250;
 conf.f_sep = 8;         %Sub carrier frequency spearation
-conf.ncp = 0.5;         %Cyclic prefix length (relative to the symbol length)
+conf.ncp = 0.01;         %Cyclic prefix length (relative to the symbol length)
 
 
 conf.npreamble  = 100;
@@ -156,7 +156,7 @@ per = zeros(length(offsets),length(f_symbs),1);
             res.rxnbits(k)      = length(rxbits);  
             res.biterrors(k)    = sum(rxbits ~= txbits);
 
-            ber(1,1,k)=(res.biterrors(k))/(res.rxnbits(k));
+            ber(1,1,k)=(res.biterrors(k))/(res.rxnbits(k))
             
         %    ber(j,i,k) = (res.biterrors(k))/(res.rxnbits(k));
        %  end
@@ -166,13 +166,13 @@ per = zeros(length(offsets),length(f_symbs),1);
 
 
 %%
-figure
-for i = 1:length(offsets);
-    hold on
-    plot(f_symbs,mean(ber(i,:,:),3),'DisplayName', ['offset = ',num2str(offsets(i)), ' parts per million']);
-end
-hold off
-xlabel('Symbol Rate (Bd)')
-ylabel('BER')
-legend('show')
-title('Bit Error Rate as a function of Symbol Frequency')
+% figure
+% for i = 1:length(offsets);
+%     hold on
+%     plot(f_symbs,mean(ber(i,:,:),3),'DisplayName', ['offset = ',num2str(offsets(i)), ' parts per million']);
+% end
+% hold off
+% xlabel('Symbol Rate (Bd)')
+% ylabel('BER')
+% legend('show')
+% title('Bit Error Rate as a function of Symbol Frequency')

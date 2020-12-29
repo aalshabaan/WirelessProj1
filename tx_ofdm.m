@@ -10,14 +10,17 @@ conf.debug=tx_bits;
 
 mapped = map(tx_bits, conf.modulation_order);
 
-conf.debug_2=mapped;
+
 
 trash_len = mod(conf.N - mod(size(mapped,1),conf.N),conf.N);
 trash = zeros(trash_len,1);
 
 mapped = [mapped; trash];
+% conf.debug_2=mapped;
+
 mapped = reshape(mapped, [], conf.N);
-%conf.debug = reshape(mapped.', [], 1);
+conf.debug_2 = mapped;
+
 % Add training symbol (BPSK OFDM, all -1)
 training_sym = -ones(1,conf.N);
 
@@ -30,7 +33,7 @@ conf.nsymbols = size(time_signal,2);
 
 
 %Add the cyclic prefix
-padding_start_index = floor(size(time_signal,1)*conf.ncp);
+padding_start_index = floor(size(time_signal,1)*(1-conf.ncp));
 cyclic_prefix = time_signal(padding_start_index+1:end,:);
 padded_signal = [cyclic_prefix; time_signal];
 

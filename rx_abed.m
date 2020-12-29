@@ -49,9 +49,10 @@ H = training_sym/-1;
 
 equalized_data = data_symbs./H;
 
+conf.H = H;
 
 %Serialize data symbols
-data = reshape(equalized_data.',[],1);
+data = reshape(equalized_data,[],1);
 
 %DEBUG data before demap
 data_before_demap=data; 
@@ -72,12 +73,18 @@ switch conf.modulation_order
         
         
     case QPSK %QPSK
-        disp('QPSK')
-        [~,ind] = min(abs(ones(data_length,4)*diag(QPSK_map) - diag(data)*ones(data_length,4)),[],2);
-        rxbits = de2bi(ind-1)';
-        % Unfold into a single column stream
+%         disp('QPSK')
+%         [~,ind] = min(abs(ones(data_length,4)*diag(QPSK_map) - diag(data)*ones(data_length,4)),[],2);
+%         rxbits = de2bi(ind-1)';
+%         % Unfold into a single column stream
+
+        LSB = real(data) > 0;
+        MSB = imag(data) > 0;
         
+        rxbits = [MSB'; LSB'];
+         
         rxbits = reshape(rxbits,[],1);
+        
         
     otherwise
         disp('WTF?')
@@ -91,13 +98,18 @@ end
 
 
 
-% %%%DEBUG%%%
+%%%DEBUG%%%
 % figure
-% plot(real(data(1:1000)), real(conf.debug))
+% plot(real(data(1:1000)), real(conf.debug_2))
 % hold on
-% plot(imag(data(1:1000)), imag(conf.debug))
+% plot(imag(data(1:1000)), imag(conf.debug_2))
 % legend('real', 'imag')
 % hold off
-% %%%DEBUG%%%
+
+
+
+REAL_ERRS = sum(real(data_symbs) .* real(conf.debug_2) < 0, 'all')
+IMAG_ERRS = sum(imag(data_symbs) .* imag(conf.debug_2) < 0, 'all')
+%%%DEBUG%%%
 
 end
