@@ -14,7 +14,7 @@
 %<<<<<<< Updated upstream
 clear variables
 
-conf.audiosystem = 'bypass';% Values: 'matlab','native','bypass'
+conf.audiosystem = 'matlab';% Values: 'matlab','native','bypass'
 %=======
 %conf.audiosystem = 'matlab';%'matlab'; % Values: 'matlab','native','bypass'
 %>>>>>>> Stashed changes
@@ -62,15 +62,16 @@ f_datas = [500 1000 2000 4000 8000 ];
 
 
 %%
-ber = zeros(length(Ns),length(f_seps),conf.nframes);
-per = zeros(length(Ns),length(f_seps),1);
+ber = zeros(length(Ns),length(f_datas),conf.nframes);
+per = zeros(length(Ns),length(f_datas),1);
 % Results
  for j = 1:length(Ns)
     conf.N = Ns(j);
-    for i = 1:length(f_seps)
-%         conf.f_data = f_datas(i);
-%         conf.f_sep = conf.f_data/conf.N;
-        conf.f_sep = f_seps(i);
+    for i = 1:length(f_datas)
+%     for i = 1:length(f_seps)
+        conf.f_data = f_datas(i);
+        conf.f_sep = conf.f_data/conf.N;
+%         conf.f_sep = f_seps(i);
         conf.os_factor_sc  = conf.f_s/conf.f_data;
         conf.os_factor_ofdm = conf.f_s/(conf.N * conf.f_sep);
         
@@ -176,13 +177,13 @@ per = zeros(length(Ns),length(f_seps),1);
 figure
 for i = 1:length(Ns)
     hold on
-    plot(f_seps,mean(ber(i,:,:),3),'DisplayName', ['N = ',num2str(Ns(i))]);
+    plot(f_datas,mean(ber(i,:,:),3),'DisplayName', ['N = ',num2str(Ns(i))]);
 end
 hold off
-xlabel('Carrier separation (Hz)')
+xlabel('Symbols rate (Bd)')
 ylabel('BER')
 legend('show')
-title('Bit Error Rate as a function of Carrier Separation')
+title('Bit Error Rate as a function of Symbol rate')
 
 %%
 i = 1;
