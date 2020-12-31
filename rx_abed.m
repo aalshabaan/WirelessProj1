@@ -43,37 +43,37 @@ for idx = 1:conf.nsymbols
    ofdm_symbols(idx,:) = osfft(ofdm_time_symbols(:,idx), conf.os_factor_ofdm); 
 end
 
-%training_sym = ofdm_symbols(1,:);
-%data_symbs = ofdm_symbols(2:end,:);
+training_sym = ofdm_symbols(1,:);
+data_symbs = ofdm_symbols(2:end,:);
 
 %Equalization
-%H = training_sym/-1;
+H = training_sym/-1;
 
-%equalized_data = data_symbs./H;
+equalized_data = data_symbs./H;
 
-%conf.H = H;
+conf.H = H;
 
 %Serialize data symbols
 
 %Phase estimation:
-ofdm_symbols_phase_corr=zeros(size(ofdm_symbols));
 
-theta_hat = zeros(size(ofdm_symbols,1),size(ofdm_symbols,2)+1);
+theta_hat = zeros(size(data_symbs,1),size(data_symbs,2)+1);
 theta_hat(:,1) = theta;
 
-for m = 1:size(ofdm_symbols,1)
+for m = 1:size(data_symbs,2)
     
-    deltaTheta = 1/4*angle(-ofdm_symbols(:,m).^4) + pi/2*(-1:4);
+    deltaTheta = 1/4*angle(-equalized_data(:,m).^4) + pi/2*(-1:4);
     
     % Unroll phase
-    [~, ind] = min(abs(deltaTheta - theta_hat(:,m)));
-    theta = deltaTheta(:,ind);
-    
+     for idx_theta=1:size(data_symbs,1)
+        [~, ind] = min(abs(deltaTheta(idx_theta,:) - theta_hat(idx_theta,m)));
+        theta(idx_theta) = deltaTheta(idx_theta,ind);
+     end
     % Lowpass filter phase
-    theta_hat(:,m+1) = mod(0.01*theta(:,m) + 0.99*theta_hat(:,m), 2*pi);
+    theta_hat(:,m+1) = mod(0.01*theta' + 0.99*theta_hat(:,m),2*pi);
     
     % Phase correction
-    ofdm_symbols_phase_corr(:,m) = ofdm_symbols(:,m) .* exp(-1j * theta_hat(:,m+1));
+    equalized_data(:,m) = equalized_data(:,m) .* exp(-1j * theta_hat(:,m+1));
         
 %%end phase estimation 
 end

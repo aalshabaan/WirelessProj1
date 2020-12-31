@@ -22,9 +22,9 @@ mapped = reshape(mapped, [], conf.N);
 conf.debug_2 = mapped;
 
 % Add training symbol (BPSK OFDM, all -1)
-% training_sym = -ones(1,conf.N);
+ training_sym = -ones(1,conf.N);
 % 
-% mapped = [training_sym ;mapped];
+ mapped = [training_sym ;mapped];
 %%End training conf!
 
 
