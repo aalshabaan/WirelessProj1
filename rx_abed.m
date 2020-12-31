@@ -85,6 +85,7 @@ switch conf.modulation_order
         rxbits = [MSB'; LSB'];
          
         rxbits = reshape(rxbits,[],1);
+        rxbits = rxbits(1:conf.nbits);
         
         
     otherwise

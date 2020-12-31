@@ -14,7 +14,7 @@
 %<<<<<<< Updated upstream
 clear variables
 
-conf.audiosystem = 'matlab';% Values: 'matlab','native','bypass'
+conf.audiosystem = 'bypass';% Values: 'matlab','native','bypass'
 %=======
 %conf.audiosystem = 'matlab';%'matlab'; % Values: 'matlab','native','bypass'
 %>>>>>>> Stashed changes
@@ -22,7 +22,7 @@ conf.audiosystem = 'matlab';% Values: 'matlab','native','bypass'
 conf.f_s     = 48000;   % sampling rate  
 conf.f_data   = 1000;     % data rate (bps) for the single carrier preamble, OFDM data rate is determined by N and f_sep
 conf.nframes = 1;       % number of frames to transmit; this parameter is overridden below
-conf.nbits   = 2000;    % number of bits 
+conf.nbits   = 2010;    % number of bits 
 conf.modulation_order = 2; % BPSK:1, QPSK:2
 conf.f_c     = 10000;
 conf.N = 250;
@@ -56,18 +56,20 @@ res.rxnbits     = zeros(conf.nframes,1);
 % beforehand.
 
 Ns = [100 200 250 500 1000];
-f_datas = [500 1000 2000 4000 8000 ];
+% f_datas = [500 1000 2000 4000 8000 ];
+f_seps = [2 4 8 16];
 
 
 %%
-ber = zeros(length(Ns),length(f_datas),conf.nframes);
-per = zeros(length(Ns),length(f_datas),1);
+ber = zeros(length(Ns),length(f_seps),conf.nframes);
+per = zeros(length(Ns),length(f_seps),1);
 % Results
  for j = 1:length(Ns)
     conf.N = Ns(j);
-    for i = 1:length(f_datas)
-        conf.f_data = f_datas(i);
-        conf.f_sep = conf.f_data/conf.N;
+    for i = 1:length(f_seps)
+%         conf.f_data = f_datas(i);
+%         conf.f_sep = conf.f_data/conf.N;
+        conf.f_sep = f_seps(i);
         conf.os_factor_sc  = conf.f_s/conf.f_data;
         conf.os_factor_ofdm = conf.f_s/(conf.N * conf.f_sep);
         
@@ -173,7 +175,7 @@ per = zeros(length(Ns),length(f_datas),1);
 figure
 for i = 1:length(Ns)
     hold on
-    plot(f_datas,mean(ber(i,:,:),3),'DisplayName', ['N = ',num2str(Ns(i))]);
+    plot(f_seps,mean(ber(i,:,:),3),'DisplayName', ['N = ',num2str(Ns(i))]);
 end
 hold off
 xlabel('Carrier separation (Hz)')
@@ -182,10 +184,10 @@ legend('show')
 title('Bit Error Rate as a function of Carrier Separation')
 
 %%
-i = 5;
-j = 3;
+i = 1;
+j = 5;
 figure
-f = conf.f_c - 0.5*Ns(i)*conf.f_sep:conf.f_sep:conf.f_c+0.5*Ns(i)*conf.f_sep-1;
+f = - 0.5*f_datas(j):f_datas(j)/Ns(i):0.5*(f_datas(j)-1);
 subplot(2,1,1)
 plot(f,abs(H{i,j}))
 title('Channel Frequency Response Amplitude');
