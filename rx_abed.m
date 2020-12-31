@@ -16,7 +16,9 @@ filtered_rx = ofdmlowpass(baseband_rx,conf,freq_margin*bandwidth);
 %Frame synchronisation
 
 preamble = 1 - 2*preamble_generate(conf.npreamble); %Mapped to BPSK
-[data_idx, ~] = frame_sync(filtered_rx,preamble,conf.os_factor_sc);
+
+[data_idx, theta] = frame_sync(filtered_rx,preamble,conf.os_factor_sc);%We get the peak phase
+
 len_symbol = conf.N*conf.os_factor_ofdm*(1+conf.ncp);
 relevant_rx = filtered_rx(data_idx:data_idx + conf.nsymbols*len_symbol-1);
 
@@ -41,23 +43,49 @@ for idx = 1:conf.nsymbols
    ofdm_symbols(idx,:) = osfft(ofdm_time_symbols(:,idx), conf.os_factor_ofdm); 
 end
 
-training_sym = ofdm_symbols(1,:);
-data_symbs = ofdm_symbols(2:end,:);
+%training_sym = ofdm_symbols(1,:);
+%data_symbs = ofdm_symbols(2:end,:);
 
 %Equalization
-H = training_sym/-1;
+%H = training_sym/-1;
 
-equalized_data = data_symbs./H;
+%equalized_data = data_symbs./H;
 
-conf.H = H;
+%conf.H = H;
 
 %Serialize data symbols
-data = reshape(equalized_data,[],1);
 
-%DEBUG data before demap
-data_before_demap=data; 
+%Phase estimation:
+ofdm_symbols_phase_corr=zeros(size(ofdm_symbols));
 
-%%
+theta_hat = zeros(size(ofdm_symbols,1),size(ofdm_symbols,2)+1);
+theta_hat(:,1) = theta;
+
+for m = 1:size(ofdm_symbols,1)
+    
+    deltaTheta = 1/4*angle(-ofdm_symbols(:,m).^4) + pi/2*(-1:4);
+    
+    % Unroll phase
+    [~, ind] = min(abs(deltaTheta - theta_hat(:,m)));
+    theta = deltaTheta(:,ind);
+    
+    % Lowpass filter phase
+    theta_hat(:,m+1) = mod(0.01*theta(:,m) + 0.99*theta_hat(:,m), 2*pi);
+    
+    % Phase correction
+    ofdm_symbols_phase_corr(:,m) = ofdm_symbols(:,m) .* exp(-1j * theta_hat(:,m+1));
+        
+%%end phase estimation 
+end
+
+
+
+data = reshape(equalized_data,[],1); 
+
+
+
+
+
 
 %Demapping
 BPSK=1;
@@ -108,8 +136,8 @@ end
 
 
 
-REAL_ERRS = sum(real(data_symbs) .* real(conf.debug_2) < 0, 'all')
-IMAG_ERRS = sum(imag(data_symbs) .* imag(conf.debug_2) < 0, 'all')
+%REAL_ERRS = sum(real(data_symbs) .* real(conf.debug_2) < 0, 'all');
+%IMAG_ERRS = sum(imag(data_symbs) .* imag(conf.debug_2) < 0, 'all');
 %%%DEBUG%%%
 
 end

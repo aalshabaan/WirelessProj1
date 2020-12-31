@@ -22,9 +22,14 @@ mapped = reshape(mapped, [], conf.N);
 conf.debug_2 = mapped;
 
 % Add training symbol (BPSK OFDM, all -1)
-training_sym = -ones(1,conf.N);
+% training_sym = -ones(1,conf.N);
+% 
+% mapped = [training_sym ;mapped];
+%%End training conf!
 
-mapped = [training_sym ;mapped];
+
+
+
 for i = 1:size(mapped,1)
    time_signal(:,i) = osifft(mapped(i,:),conf.os_factor_ofdm); 
 end
