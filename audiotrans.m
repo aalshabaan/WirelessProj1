@@ -14,7 +14,7 @@
 %<<<<<<< Updated upstream
 clear variables
 
-conf.audiosystem = 'matlab';% Values: 'matlab','native','bypass'
+conf.audiosystem = 'bypass';% Values: 'matlab','native','bypass'
 %=======
 %conf.audiosystem = 'matlab';%'matlab'; % Values: 'matlab','native','bypass'
 %>>>>>>> Stashed changes
@@ -159,7 +159,7 @@ per = zeros(length(Ns),length(f_datas),1);
             % % % % % % % % % % % %
 
             % TODO: Implement rx() Receive Function
-            [rxbits conf]       = rx_abed(rxsignal,conf);
+            [rxbits conf]       = rx_ofdm(rxsignal,conf);
 
             res.rxnbits(k)      = length(rxbits);  
             res.biterrors(k)    = sum(rxbits ~= txbits);
@@ -186,7 +186,7 @@ legend('show')
 title('Bit Error Rate as a function of Symbol rate')
 
 %%
-i = 1;
+i = 5;
 j = 5;
 figure
 f = - 0.5*f_datas(j):f_datas(j)/Ns(i):0.5*(f_datas(j)-1);
